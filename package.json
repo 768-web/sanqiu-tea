@@ -1,0 +1,17 @@
+{
+  "name": "sanqiu-tea",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "三秋茶业品牌与选茶网站",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "start": "node scripts/serve.mjs dist",
+    "export:pages": "node scripts/export-pages.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

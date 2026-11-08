@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {normalize,readState,setQuantity,itemCount,inquiryText} from '../public/store.js';
+test('corrupted storage recovers and invalid products never reach tea list',()=>{assert.deepEqual(readState({getItem:()=>'{broken'}),normalize());assert.deepEqual(normalize({cart:{evil:9,chuchang:2,riyin:-2,jianshan:400},favorites:['evil','riyin','riyin']}),{cart:{chuchang:2,jianshan:99},favorites:['riyin'],preference:''});});
+test('quantity is bounded, immutable, removable and survives reload',()=>{const first=normalize();const next=setQuantity(first,'chuchang',2);assert.equal(itemCount(next),2);assert.deepEqual(first.cart,{});assert.equal(setQuantity(next,'chuchang',500).cart.chuchang,99);assert.deepEqual(setQuantity(next,'chuchang',0).cart,{});assert.deepEqual(readState({getItem:()=>JSON.stringify(next)}),next);});
+test('inquiry accurately carries selections and explicitly avoids order/payment claims',()=>{const s=setQuantity(setQuantity(normalize(),'riyin',2),'jianshan',1);const text=inquiryText(s,{recipient:'家人',message:'生日快乐',timing:'月底'});assert.match(text,/三秋日饮 × 2/);assert.match(text,/三秋见山 × 1/);assert.match(text,/生日快乐/);assert.match(text,/尚未下单或付款/);assert.doesNotMatch(text,/¥|支付成功/);});
+
+test('unavailable and JSON-null storage remain recoverable',()=>{assert.deepEqual(readState(null),normalize());assert.deepEqual(readState({getItem:()=>{throw new Error('blocked')}}),normalize());assert.deepEqual(readState({getItem:()=> 'null'}),normalize());});
